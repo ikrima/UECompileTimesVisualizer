@@ -278,7 +278,7 @@ with open(log_file, "r", encoding="utf-8-sig") as file:
                 continue
 
         extension = ""
-        for ext in [".h", ".cpp", ".rc", ".lib", ".dll", ".exe"]:
+        for ext in [".h", ".cpp", ".rc", ".lib", ".dll", ".exe", ".target"]:
             if ext in line:
                 extension = ext
                 break
@@ -291,7 +291,7 @@ with open(log_file, "r", encoding="utf-8-sig") as file:
         current_file = line.strip().split(extension)[0] + extension
         print(current_file)
 
-        if extension in [".rc", ".lib", ".dll", ".exe"]:
+        if extension in [".rc", ".lib", ".dll", ".exe", ".target"]:
             print("Skipping extension " + extension)
             continue
 
@@ -315,6 +315,8 @@ with open(log_file, "r", encoding="utf-8-sig") as file:
         print("    Functions parsed!")
 
         parse_beginstring("time(")
+
+        try_parse_seconds("Elapsed Time before Code Generation:")
 
         if try_parse_string("Code Generation Summary"):
             parse_int("Total Function Count:")
@@ -342,7 +344,10 @@ with open(log_file, "r", encoding="utf-8-sig") as file:
             while not try_parse_empty():
                 get_line()
 
-        parse_beginstring("time(")
+        if try_parse_seconds("Elapsed Time after Code Generation:"):
+            parse_beginstring("time(")
+        else:
+            parse_beginstring("time(")
 
         map[current_file] = includes_tree, classes_tree, functions_tree
 
