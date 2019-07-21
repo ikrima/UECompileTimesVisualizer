@@ -296,7 +296,13 @@ with open(log_file, "r", encoding="utf-8-sig") as file:
             continue
 
         try_parse_string("Unknown compiler version - please run the configure tests and report the results")
-        try_parse_string("Include Headers:")
+        if try_parse_string("Include Headers:"):
+            pass
+        else:
+            allow_partial_timings = True and configuration == "Unreal"
+            if allow_partial_timings and extension in [".h", ".cpp"]:
+                print(f"No timing info for file {current_file}. Skipping")
+                continue
 
         print("    Parsing includes...")
         includes_tree = parse_section(current_file, get_include_name)
